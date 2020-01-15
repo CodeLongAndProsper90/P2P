@@ -4,7 +4,7 @@ from threading import Thread
 from socketserver import ThreadingMixIn
 import os
 
-TCP_IP = 'localhost'
+TCP_IP = '192.168.1.85'
 TCP_PORT = 9001
 BUFFER_SIZE = 1024
 
@@ -22,26 +22,28 @@ class ClientThread(Thread):
     def run(self):
         filename=self.sock.recv(1024)
         filename = filename.decode("utf-8") 
-        print(os.path.exists(filename))
+        
+        if filename.startswith("FILE:"):
+          filename = filename.replace("FILE:",'',1)
         if not os.path.exists(filename):
-          conn.send('NFile'.encode('utf-8'))
+          conn.send('STATUS:NFile'.encode('utf-8')) # Send the file status
           conn.close()
           return
         else:
-          conn.send("File".encode('utf-8'))
+          conn.send("STATUS:File".encode('utf-8'))
         print(f"Size of {filename} is {self.size(filename)}") 
         filesize = self.size(filename)
-        conn.send(str(filesize).encode('utf-8'))
+        conn.send(str(filesize).encode('utf-8')) # Send filesize
         f = open(filename,'rb')
         while True:
             l = f.read(BUFFER_SIZE)
             while (l):
                 self.sock.send(l)
-                l = f.read(BUFFER_SIZE)
-            if not l:
-                f.close()
-                self.sock.close()
-                break
+                # l = f.read(BUFFER_SIZE)
+            # if not l:
+                # f.close()
+                # self.sock.close()
+                # break
 
 tcpsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 tcpsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

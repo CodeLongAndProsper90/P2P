@@ -7,7 +7,7 @@ import time
 import threading
 from hurry.filesize import size as Size
 import os
-TCP_IP = 'localhost'
+TCP_IP = '192.168.1.85'
 TCP_PORT = 9001
 BUFFER_SIZE = 1024
 if len(sys.argv) < 2:
