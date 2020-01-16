@@ -8,7 +8,7 @@ import threading
 from hurry.filesize import size as Size
 import os
 import ast
-TCP_IP = '192.168.1.85'
+TCP_IP = '192.168.1.20'
 TCP_PORT = 9001
 BUFFER_SIZE = 1024
 data = 0
@@ -30,7 +30,8 @@ else:
 exists = s.recv(BUFFER_SIZE).decode('utf-8')
 if exists.startswith("STATUS:"):
     exists = exists.replace("STATUS:","",1)
-    if exists == 'NFile':
+    print(exists)
+    if exists.startswith('NFile'):
       print(f'{sys.argv[1]}: No such file or directory')
       exit(1)
     else:
