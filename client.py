@@ -7,9 +7,11 @@ import time
 import threading
 from hurry.filesize import size as Size
 import os
+import ast
 TCP_IP = '192.168.1.85'
 TCP_PORT = 9001
 BUFFER_SIZE = 1024
+data = 0
 if len(sys.argv) < 2:
   print("Missing operand")
   exit()
@@ -33,26 +35,49 @@ if exists.startswith("STATUS:"):
       exit(1)
     else:
       print(f"File {filename} exists...")
-print("Line: 35")
 size = s.recv(BUFFER_SIZE).decode('utf-8')
+print(size.split('#0'))
 if size.startswith("SIZE:"):
-    size = size.replace("SIZE","",1)
+    size = size.replace("SIZE:","",1)
+    size = size.split('#0')
+    data = size
+    size = size[0]
 print(f"Size of file is {Size(int(size))}")
 byte = 0
+print("Processing data...")
+for item in data:
+    print("Item is :" + item)
+    if item.startswith("DATA:"):
+        write = item.replace('DATA:','',1)
+        print("New version: " + write)
+#        write = write.decode('utf-8')
+        print(write)
+        write = ast.literal_eval(write)
+        break
 try:
   with open(saveas, 'wb') as f:
       while True:
-          data = s.recv(BUFFER_SIZE)
-          if not data:
+          if type(write) is not bytes:
+            write = s.recv(BUFFER_SIZE)
+            print(write)
+          if not write:
               f.close()
               break
           # write data to a file
-          f.write(data)
+          f.write(write)
           byte+=BUFFER_SIZE
+          if byte < int(size):
+              f.close()
+              break
+          
+          input()
           print(f"Downloaded {Size(byte)} of {Size(int(size))}",end='\r')
+          write = None 
 except KeyboardInterrupt or EOFError:
-  os.remove(filename)
-print()
+#  os.remove(filename)
+    print()
 print('Successfully got the file')
 s.close()
 print('connection closed')
+with open(saveas, 'r') as f:
+    print(f.read())
