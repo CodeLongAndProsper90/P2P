@@ -1,4 +1,4 @@
-# server2.py
+# server1.py
 import socket
 from threading import Thread
 from socketserver import ThreadingMixIn
@@ -26,24 +26,32 @@ class ClientThread(Thread):
         if filename.startswith("FILE:"):
           filename = filename.replace("FILE:",'',1)
         if not os.path.exists(filename):
-          conn.send('STATUS:NFile'.encode('utf-8')) # Send the file status
+          conn.send('STATUS:NFile#0'.encode('utf-8')) # Send the file status
           conn.close()
           return
         else:
-          conn.send("STATUS:File".encode('utf-8'))
+          conn.send("STATUS:File#0".encode('utf-8'))
         print(f"Size of {filename} is {self.size(filename)}") 
         filesize = self.size(filename)
-        conn.send(str(filesize).encode('utf-8')) # Send filesize
+        conn.send(f"SIZE:{str(filesize)}#0".encode('utf-8')) # Send filesize
+        f = open(filename, 'a')
+        f.write("#e")
+        f.close()
         f = open(filename,'rb')
+        l = f"DATA:{f.read(BUFFER_SIZE-5)}"
+        
         while True:
-            l = f.read(BUFFER_SIZE)
-            while (l):
-                self.sock.send(l)
-                # l = f.read(BUFFER_SIZE)
-            # if not l:
-                # f.close()
-                # self.sock.close()
-                # break
+          while (l):
+              self.sock.send(l.encode('utf-8'))
+              l = f.read(BUFFER_SIZE)
+          if not l:
+              self.sock.send('#e'.encode('utf-8'))
+              f.close()
+              self.sock.close()
+              break
+        with open(filename, 'r+') as f:
+          source = f.read().strip().split('\n')
+          source[-1] = source[-1].replace('#e','',-1)
 
 tcpsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 tcpsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
