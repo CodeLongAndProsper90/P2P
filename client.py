@@ -1,34 +1,29 @@
 import socket
-import tqdm 
+import tqdm
 import os
 
-SERVER_HOST = '0.0.0.0'
-SERVER_PORT = 9001
-BUFFER_SIZE = 4096
 SEP = "<SEP>"
-saveas = 'test.img.trans'
+BUFFER_SIZE = 4096
+host = '192.168.1.20'
+port = 9001
+filename = 'test'
+filesize = os.path.getsize(filename)
+
 s = socket.socket()
+print(f"[+] Connecting to {host}:{port}")
+s.connect((host, port))
+print("[+] Connected")
 
-s.bind((SERVER_HOST, SERVER_PORT))
-s.listen(5)
+s.send(f'{filename}{SEP}{filesize}'.encode())
 
-print(f"[*] Listening as {SERVER_HOST}:{SERVER_PORT}")
-client_socket, address = s.accept()
+progress = tqdm.tqdm(range(filesize), f'Sending {filename}', unit='B', unit_scale=True, unit_divisor=1024)
 
-
-received = client_socket.recv(BUFFER_SIZE).decode()
-print(received)
-filename, filesize = received.split(SEP)
-filename = os.path.basename(filename)
-filesize = int(filesize)
-
-progress = tqdm.tqdm(range(filesize), f"Reciving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
-with open(saveas, "wb") as f:
+with open(filename, "rb") as f:
   for _ in progress:
-    bytes_read = client_socket.recv(BUFFER_SIZE)
+    bytes_read = f.read(BUFFER_SIZE)
     if not bytes_read:
       break
-  f.write(bytes_read)
-  progress.update(len(bytes_read))
-client_socket.close()
+    s.sendall(bytes_read)
+    progress.update(len(bytes_read))
 s.close()
+
