@@ -1,12 +1,17 @@
 import socket
 import tqdm
 import os
+import sys
+def ensure_args():
+  if len(sys.argv) < 3:
+    print("Usage: python3 client.py (ip_to_send_to) (file_to_send)")
+ensure_args()
 
 SEP = "<SEP>"
 BUFFER_SIZE = 4096
-host = '192.168.1.20'
+host = sys.argv[1]
 port = 9001
-filename = 'test'
+filename = sys.argv[2]
 filesize = os.path.getsize(filename)
 
 s = socket.socket()
