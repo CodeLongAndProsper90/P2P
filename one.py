@@ -33,10 +33,9 @@ if sys.argv[1] == 'transmit':
   while len(dat.encode()) < 4096:
     dat = '0'+dat
   data = dat
+  print(data)
   print(len(data.encode()))
   s.send(data.encode())
-  pad = "\0"*(strlen(dat)-BUFFER_SIZE)
-  s.send(f'{dat}{pad}'.encode())
   
 
   progress = tqdm.tqdm(range(filesize), f'Sending {filename}', unit='B', unit_scale=True, unit_divisor=1024)
