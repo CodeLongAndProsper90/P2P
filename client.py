@@ -32,7 +32,6 @@ with open(filename, "rb") as f:
     bytes_read = f.read(BUFFER_SIZE)
     if not bytes_read:
       break
-    print(bytes_read)
     s.sendall(bytes_read)
     progress.update(len(bytes_read))
 s.close()

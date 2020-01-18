@@ -26,7 +26,6 @@ progress = tqdm.tqdm(range(filesize), f"Reciving {filename}", unit="B", unit_sca
 with open(saveas, "wb") as f:
   for _ in progress:
     bytes_read = client_socket.recv(BUFFER_SIZE)
-    print(bytes_read)
     if not bytes_read:
       break
     f.write(bytes_read)
