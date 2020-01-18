@@ -16,7 +16,6 @@ filesize = os.path.getsize(filename)
 
 s = socket.socket()
 
-s.bind((SERVER_HOST, SERVER_PORT))
 s.listen(5)
 
 s = socket.socket()
@@ -33,6 +32,7 @@ with open(filename, "rb") as f:
     bytes_read = f.read(BUFFER_SIZE)
     if not bytes_read:
       break
+    print(bytes_read)
     s.sendall(bytes_read)
     progress.update(len(bytes_read))
 s.close()
