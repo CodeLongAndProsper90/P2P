@@ -77,9 +77,6 @@ elif sys.argv[1] == 'download':
   filesize = raw[1]
   filename = filename.replace('0','')
 
-
-  received = client_socket.recv(BUFFER_SIZE).decode()
-  filename, filesize = received.split(SEP)
   filename = os.path.basename(filename)
   saveas = filename
   filesize = int(filesize)
