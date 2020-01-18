@@ -69,17 +69,14 @@ elif sys.argv[1] == 'download':
 
 
   received = client_socket.recv(BUFFER_SIZE).decode()
-  print(received.split(SEP))
+  print(len(received.encode())==4096)
   raw = received.split(SEP)
   while '' in raw:
     raw.remove('')
+  print(len(raw))
   filename = raw[0]
   filesize = raw[1]
   filename = filename.replace('0','')
-
-
-  received = client_socket.recv(BUFFER_SIZE).decode()
-  filename, filesize = received.split(SEP)
   filename = os.path.basename(filename)
   saveas = filename
   filesize = int(filesize)
