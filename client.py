@@ -10,16 +10,13 @@ ensure_args()
 SERVER_HOST = '0.0.0.0'
 SERVER_PORT = 9001
 BUFFER_SIZE = 4096
-<<<<<<< HEAD
 host = sys.argv[1]
 port = 9001
 filename = sys.argv[2]
 filesize = os.path.getsize(filename)
 
-=======
 SEP = "<SEP>"
 saveas = 'test.img.trans'
->>>>>>> 642e413a62f170930a0620193a825e8544dc2735
 s = socket.socket()
 
 s.bind((SERVER_HOST, SERVER_PORT))
