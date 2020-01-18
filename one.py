@@ -5,15 +5,14 @@ import os
 import sys
 from playsound import playsound as play
 modes = ['transmit', 'download']
-def strlen(s):
-    return len(s.encode('utf-8'))
+if sys.argv[1] not in modes:
+  print("Invalid mode")
+  exit()
+
 if sys.argv[1] == 'transmit':
   if not len(sys.argv) == 4:
     print("Usage: (transmit/download) (ip-to-transmit-to) (file-to-transmit)")
     exit()
-if sys.argv[1] not in modes:
-  print("Invalid mode")
-  exit()
 if sys.argv[1] == 'transmit':
   SEP = "<SEP>"
   BUFFER_SIZE = 4096
@@ -59,7 +58,6 @@ elif sys.argv[1] == 'download':
   s.listen(5)
 
   print(f"[*] Listening as {SERVER_HOST}:{SERVER_PORT}")
-  client_socket, address = s.accept()
   print(f"([*] Connection established!")
   play('connect.wav')
 
@@ -72,6 +70,10 @@ elif sys.argv[1] == 'download':
   filename = raw[0]
   filesize = raw[1]
   filename = filename.replace('0','')
+
+
+  received = client_socket.recv(BUFFER_SIZE).decode()
+  filename, filesize = received.split(SEP)
   filename = os.path.basename(filename)
   saveas = filename
   filesize = int(filesize)
