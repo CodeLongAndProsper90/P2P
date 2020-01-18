@@ -4,6 +4,7 @@ import tqdm
 import os
 import sys
 from playsound import playsound as play
+import hashlib
 modes = ['transmit', 'download']
 if sys.argv[1] not in modes:
   print("Invalid mode")
@@ -29,7 +30,9 @@ if sys.argv[1] == 'transmit':
   s.connect((host, port))
   print(f"[*] Connected to {host}!")
   play('connect.wav')
-  dat = f'{filename}{SEP}{filesize}{SEP}'
+  Hash = hashlib.md5(open(filename,'rb').read()).hexdigest()
+  print(Hash)
+  dat = f'{filename}{SEP}{filesize}{SEP}{Hash}'
   while len(dat.encode()) < 4096:
     dat = '0'+dat
   data = dat
