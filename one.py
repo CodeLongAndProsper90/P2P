@@ -5,15 +5,15 @@ import os
 import sys
 from playsound import playsound as play
 modes = ['transmit', 'download']
-def strlen(s):
-    return len(s.encode('utf-8'))
+if sys.argv[1] not in modes:
+  print("Invalid mode")
+  exit()
+
 if sys.argv[1] == 'transmit':
   if not len(sys.argv) == 4:
     print("Usage: (transmit/download) (ip-to-transmit-to) (file-to-transmit)")
     exit()
-if sys.argv[1] not in modes:
-  print("Invalid mode")
-  exit()
+
 if sys.argv[1] == 'transmit':
   SEP = "<SEP>"
   BUFFER_SIZE = 4096
@@ -35,6 +35,8 @@ if sys.argv[1] == 'transmit':
   data = dat
   print(len(data.encode()))
   s.send(data.encode())
+  pad = "\0"*(strlen(dat)-BUFFER_SIZE)
+  s.send(f'{dat}{pad}'.encode())
   
 
   progress = tqdm.tqdm(range(filesize), f'Sending {filename}', unit='B', unit_scale=True, unit_divisor=1024)
@@ -48,9 +50,6 @@ if sys.argv[1] == 'transmit':
       progress.update(len(bytes_read))
   s.close()
 elif sys.argv[1] == 'download':
-  import socket
-  import tqdm 
-  import os
 
   SERVER_HOST = '0.0.0.0'
   SERVER_PORT = 9001
@@ -63,8 +62,18 @@ elif sys.argv[1] == 'download':
 
   print(f"[*] Listening as {SERVER_HOST}:{SERVER_PORT}")
   client_socket, address = s.accept()
-  print(f"([*] Connection established by {address}:{client_socket}!)")
   play('connect.wav')
+  print(f"([*] Connection established!")
+
+
+  received = client_socket.recv(BUFFER_SIZE).decode()
+  print(received.split(SEP))
+  raw = received.split(SEP)
+  while '' in raw:
+    raw.remove('')
+  filename = raw[0]
+  filesize = raw[1]
+  filename = filename.replace('0','')
 
 
   received = client_socket.recv(BUFFER_SIZE).decode()
