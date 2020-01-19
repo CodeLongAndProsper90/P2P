@@ -74,6 +74,7 @@ elif sys.argv[1] == 'download':
   print(raw)
   while '' in raw:
     raw.remove('')
+  print(len(raw))
   filename = raw[0]
   filesize = raw[1]
   filename = filename.replace('0','')
