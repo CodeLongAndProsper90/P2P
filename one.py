@@ -69,8 +69,9 @@ elif sys.argv[1] == 'download':
 
 
   received = client_socket.recv(BUFFER_SIZE).decode()
-  print(received.split(SEP))
+  print(f"Received {len(received.encode())} bytes")
   raw = received.split(SEP)
+  print(raw)
   while '' in raw:
     raw.remove('')
   filename = raw[0]
@@ -87,8 +88,8 @@ elif sys.argv[1] == 'download':
       bytes_read = client_socket.recv(BUFFER_SIZE)
       if not bytes_read:
         break
+      print(bytes_read)
       f.write(bytes_read)
       progress.update(len(bytes_read))
   client_socket.close()
   s.close()
-  print("Download complete.")
