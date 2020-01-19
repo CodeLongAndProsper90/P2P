@@ -10,8 +10,7 @@ def warn_md5():
   print("This means that either the transfer went wrong, or the file ")
   keep = input("Has been incerpeted by attackers, and is compromised. Keep file? (y/N)? ")
   if keep.lower() == 'n':
-    os.delete(filename)
-
+    os.remove(filename)
 
 modes = ['transmit', 'receive','whomadethis?']
 if len(sys.argv) == 1:
@@ -65,8 +64,11 @@ if sys.argv[1] == 'transmit':
       s.sendall(bytes_read)
       progress.update(len(bytes_read))
   s.close()
-elif sys.argv[1] == 'receive':
 
+
+
+elif sys.argv[1] == 'receive':
+  global sent_hash
   SERVER_HOST = '0.0.0.0'
   SERVER_PORT = 9001
   BUFFER_SIZE = 4096
@@ -118,6 +120,7 @@ elif sys.argv[1] == 'receive':
       progress.update(len(bytes_read))
   client_socket.close()
   s.close()
+  progress.close()
 new_hash = hashlib.md5(open(filename,'rb').read()).hexdigest()
 if not new_hash == sent_hash:
   warn_md5()
