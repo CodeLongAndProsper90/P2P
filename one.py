@@ -5,15 +5,39 @@ import os
 import sys
 import hashlib
 from hurry.filesize import size
-modes = ['transmit', 'download']
+def warn_md5():
+  print(f"Warning! MD5s do not match! {sent_hash}/{new_hash}")
+  print("This means that either the transfer went wrong, or the file ")
+  keep = input("Has been incerpeted by attackers, and is compromised. Keep file? (y/N)? ")
+  if keep.lower() == 'n':
+    os.delete(filename)
+
+
+modes = ['transmit', 'download','whomadethis?']
+if len(sys.argv) == 1:
+  print("Usage: transmit (ip-to-transmit-to) (file-to-transmit)")
+  sys.exit()
 if sys.argv[1] not in modes:
-  print("Invalid mode")
-  exit()
+  print("Invalid mode (Transmit/Download)")
+  sys.exit()
 
 if sys.argv[1] == 'transmit':
   if not len(sys.argv) == 4:
-    print("Usage: (transmit/download) (ip-to-transmit-to) (file-to-transmit)")
-    exit()
+    print("Usage: transmit (ip-to-transmit-to) (file-to-transmit)")
+    sys.exit()
+if sys.argv[1] == 'download':
+  if not len(sys.argv) == 2:
+    print('Usage: download')
+if sys.argv[1] == 'whomadethis?':
+  print("""
+               ___                                                                      
+              /   |     ____  _________  ____ __________ _____ ___  ____ ___  ___  _____
+             / /| |    / __ \/ ___/ __ \/ __ `/ ___/ __ `/ __ `__ \/ __ `__ \/ _ \/ ___/
+            / ___ |   / /_/ / /  / /_/ / /_/ / /  / /_/ / / / / / / / / / / /  __/ /    
+           /_/  |_|  / .___/_/   \____/\__, /_/   \__,_/_/ /_/ /_/_/ /_/ /_/\___/_/     
+                    /_/               /____/
+      """)
+  sys.exit()
 
 if sys.argv[1] == 'transmit':
   SEP = "<SEP>"
@@ -74,6 +98,7 @@ elif sys.argv[1] == 'download':
   print(len(raw))
   filename = raw[0]
   filesize = raw[1]
+  sent_hash = raw[2]
   filename = filename.replace('0','')
 
   filename = os.path.basename(filename)
@@ -86,7 +111,7 @@ elif sys.argv[1] == 'download':
       del x
     elif v.lower() == 'n':
       print("User abort!")
-      exit()
+      sys.exit()
 
 
   progress = tqdm.tqdm(range(filesize), f"Downloading file {filename}", unit="B", unit_scale=True, unit_divisor=1024)
@@ -101,3 +126,7 @@ elif sys.argv[1] == 'download':
       progress.update(len(bytes_read))
   client_socket.close()
   s.close()
+new_hash = hashlib.md5(open(filename,'rb').read()).hexdigest()
+if not new_hash == sent_hash:
+  warn_md5()
+
