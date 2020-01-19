@@ -33,7 +33,7 @@ if sys.argv[1] == 'transmit':
   print(Hash)
   dat = f'{filename}{SEP}{filesize}{SEP}{Hash}'
   while len(dat.encode()) < 4096:
-    dat = '0'+dat
+    dat = dat+'0'
   data = dat
   print(data)
   print(len(data.encode()))
@@ -41,7 +41,6 @@ if sys.argv[1] == 'transmit':
   
 
   progress = tqdm.tqdm(range(filesize), f'Sending {filename}', unit='B', unit_scale=True, unit_divisor=1024)
-
   with open(filename, "rb") as f:
     for _ in progress:
       bytes_read = f.read(BUFFER_SIZE)
