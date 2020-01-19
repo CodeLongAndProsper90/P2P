@@ -3,8 +3,8 @@ import socket
 import tqdm
 import os
 import sys
-from playsound import playsound as play
 import hashlib
+from hurry.filesize import size
 modes = ['transmit', 'download']
 if sys.argv[1] not in modes:
   print("Invalid mode")
@@ -29,7 +29,6 @@ if sys.argv[1] == 'transmit':
   print(f"[*] Connecting to {host}:{port}...")
   s.connect((host, port))
   print(f"[*] Connected to {host}!")
-  play('connect.wav')
   Hash = hashlib.md5(open(filename,'rb').read()).hexdigest()
   print(Hash)
   dat = f'{filename}{SEP}{filesize}{SEP}{Hash}'
@@ -62,9 +61,8 @@ elif sys.argv[1] == 'download':
   s.bind((SERVER_HOST, SERVER_PORT))
   s.listen(5)
 
-  print(f"[*] Listening as {SERVER_HOST}:{SERVER_PORT}")
+  print(f"[+] Listening as {SERVER_HOST}:{SERVER_PORT}")
   client_socket, address = s.accept()
-  play('connect.wav')
   print(f"([*] Connection established!")
 
 
@@ -82,14 +80,24 @@ elif sys.argv[1] == 'download':
   filename = os.path.basename(filename)
   saveas = filename
   filesize = int(filesize)
+  if filesize >= 524288000:
+    v = input(f'{filename} seems to be a large file. ({size(filesize)}) Download? [Y/n]')
+    if v.lower() == 'y':
+      x = 1
+      del x
+    elif v.lower() == 'n':
+      print("User abort!")
+      exit()
+
 
   progress = tqdm.tqdm(range(filesize), f"Downloading file {filename}", unit="B", unit_scale=True, unit_divisor=1024)
+  saveas =os.path.abspath(os.getcwd() +'/' +  saveas)
+  print(saveas)
   with open(saveas, "wb") as f:
     for _ in progress:
       bytes_read = client_socket.recv(BUFFER_SIZE)
       if not bytes_read:
         break
-      print(bytes_read)
       f.write(bytes_read)
       progress.update(len(bytes_read))
   client_socket.close()
