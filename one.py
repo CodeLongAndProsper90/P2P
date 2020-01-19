@@ -1,10 +1,10 @@
-# Sound made by Alexander, on http://www.orangefreesounds.com/
 import socket
 import tqdm
 import os
 import sys
 import hashlib
 from hurry.filesize import size
+import pyfiglet
 def warn_md5():
   print(f"Warning! MD5s do not match! {sent_hash}/{new_hash}")
   print("This means that either the transfer went wrong, or the file ")
@@ -29,16 +29,8 @@ if sys.argv[1] == 'download':
   if not len(sys.argv) == 2:
     print('Usage: download')
 if sys.argv[1] == 'whomadethis?':
-  print("""
-               ___                                                                      
-              /   |     ____  _________  ____ __________ _____ ___  ____ ___  ___  _____
-             / /| |    / __ \/ ___/ __ \/ __ `/ ___/ __ `/ __ `__ \/ __ `__ \/ _ \/ ___/
-            / ___ |   / /_/ / /  / /_/ / /_/ / /  / /_/ / / / / / / / / / / /  __/ /    
-           /_/  |_|  / .___/_/   \____/\__, /_/   \__,_/_/ /_/ /_/_/ /_/ /_/\___/_/     
-                    /_/               /____/
-      """)
+   print(pyfiglet.figlet_format("A Programmer"))
   sys.exit()
-
 if sys.argv[1] == 'transmit':
   SEP = "<SEP>"
   BUFFER_SIZE = 4096
