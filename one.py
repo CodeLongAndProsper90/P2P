@@ -13,12 +13,12 @@ def warn_md5():
     os.delete(filename)
 
 
-modes = ['transmit', 'download','whomadethis?']
+modes = ['transmit', 'receive','whomadethis?']
 if len(sys.argv) == 1:
   print("Usage: transmit (ip-to-transmit-to) (file-to-transmit)")
   sys.exit()
 if sys.argv[1] not in modes:
-  print("Invalid mode (Transmit/Download)")
+  print(f"Invalid mode {sys.argv[1]} (Transmit/Receive)")
   sys.exit()
 
 if sys.argv[1] == 'transmit':
@@ -65,7 +65,7 @@ if sys.argv[1] == 'transmit':
       s.sendall(bytes_read)
       progress.update(len(bytes_read))
   s.close()
-elif sys.argv[1] == 'download':
+elif sys.argv[1] == 'receive':
 
   SERVER_HOST = '0.0.0.0'
   SERVER_PORT = 9001
