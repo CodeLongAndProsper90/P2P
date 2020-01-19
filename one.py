@@ -32,8 +32,8 @@ if sys.argv[1] == 'transmit':
   Hash = hashlib.md5(open(filename,'rb').read()).hexdigest()
   print(Hash)
   dat = f'{filename}{SEP}{filesize}{SEP}{Hash}'
-  while len(dat.encode()) < 4096:
-    dat = dat+'0'
+  # while len(dat.encode()) < 4096:
+    # dat = dat+'0'
   data = dat
   print(data)
   print(len(data.encode()))
