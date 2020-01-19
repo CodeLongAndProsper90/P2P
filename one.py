@@ -30,7 +30,7 @@ if sys.argv[1] == 'download':
     print('Usage: download')
 if sys.argv[1] == 'whomadethis?':
    print(pyfiglet.figlet_format("A Programmer"))
-  sys.exit()
+   sys.exit()
 if sys.argv[1] == 'transmit':
   SEP = "<SEP>"
   BUFFER_SIZE = 4096
