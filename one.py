@@ -6,6 +6,8 @@ import hashlib
 from hurry.filesize import size
 import pyfiglet
 from cryptography.fernet import Fernet
+import base64
+
 def warn_md5():
   print(f"Warning! MD5s do not match! {sent_hash}/{new_hash}")
   print("This means that either the transfer went wrong, or the file ")
@@ -32,9 +34,6 @@ if sys.argv[1] == 'whomadethis?':
    print(pyfiglet.figlet_format("A Programmer"))
    sys.exit()
 if sys.argv[1] == 'transmit':
-  default_key = '5LabvIZ3MFAxk0IgJnTjwyHbWXVZdoPQcEzLeLL9IHE='.encode()
-  f = Fernet(default_key)
-  
   SEP = "<SEP>"
   BUFFER_SIZE = 4096
   port = 9001
@@ -52,11 +51,10 @@ if sys.argv[1] == 'transmit':
   print(f"[*] Connected to {host}!")
   Hash = hashlib.md5(open(filename,'rb').read()).hexdigest()
   print(Hash)
-  dat = f'{filename}{SEP}{filesize}{SEP}{Hash}'
+  dat = f'{filename}{SEP}{filesize}{SEP}{Hash}{SEP}{Fernet.generate_key().decode("ascii")}'
   # while len(dat.encode()) < 4096:
     # dat = dat+'0'
-  data = f.encrypt(dat.encode())
-  s.send(data.encode())
+  s.send(dat)
   
 
   progress = tqdm.tqdm(range(filesize), f'Sending {filename}', unit='B', unit_scale=True, unit_divisor=1024)
@@ -129,7 +127,7 @@ elif sys.argv[1] == 'receive':
   s.close()
   progress.close()
   del f
-new_hash = hashlib.md5(open(filename,'rb').read()).hexdigest()
-if not new_hash == sent_hash:
-  warn_md5()
+  new_hash = hashlib.md5(open(filename,'rb').read()).hexdigest()
+  if not new_hash == sent_hash:
+    warn_md5()
 
