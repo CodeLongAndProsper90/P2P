@@ -1,3 +1,4 @@
+import argparse
 import socket
 import tqdm
 import os
@@ -5,8 +6,15 @@ import sys
 import hashlib
 from hurry.filesize import size
 import pyfiglet
-from cryptography.fernet import Fernet
 import base64
+
+
+parser = argparse.ArgumentParser(description='Send files without connecting to a server')
+parser.add_argument('-t',  action='store_true')
+parser.add_argument('-r', action='store_true')
+parser.add_argument('--host', type=str)
+parser.add_argument('-f', type=str)
+args = parser.parse_args()
 
 def warn_md5():
   print(f"Warning! MD5s do not match! {sent_hash}/{new_hash}")
@@ -16,32 +24,12 @@ def warn_md5():
     os.remove(filename)
 
 modes = ['transmit', 'receive','whomadethis?']
-if len(sys.argv) == 1:
-  print("Usage: transmit (ip-to-transmit-to) (file-to-transmit)")
-  sys.exit()
-if sys.argv[1] not in modes:
-  print(f"Invalid mode {sys.argv[1]} (Transmit/Receive)")
-  sys.exit()
-
-if sys.argv[1] == 'transmit':
-  if not len(sys.argv) == 4:
-    print("Usage: transmit (ip-to-transmit-to) (file-to-transmit)")
-    sys.exit()
-if sys.argv[1] == 'download':
-  if not len(sys.argv) == 2:
-    print('Usage: download')
-if sys.argv[1] == 'whomadethis?':
-   print(pyfiglet.figlet_format("A Programmer"))
-   sys.exit()
-if sys.argv[1] == 'transmit':
+if args.t:
   SEP = "<SEP>"
   BUFFER_SIZE = 4096
   port = 9001
-  host = sys.argv[2]
-  filename = sys.argv[3]
-  if host == 'magic@narnia' and filename == 'unicorns':
-    print("ERROR: Cannot transfer unicorns: missing dependency: Magic")
-    sys.exit()
+  host = args.host
+  filename = args.f
   filesize = os.path.getsize(filename)
   s = socket.socket()
 
@@ -50,8 +38,7 @@ if sys.argv[1] == 'transmit':
   s.connect((host, port))
   print(f"[*] Connected to {host}!")
   Hash = hashlib.md5(open(filename,'rb').read()).hexdigest()
-  print(Hash)
-  dat = f'{filename}{SEP}{filesize}{SEP}{Hash}{SEP}{Fernet.generate_key().decode("ascii")}'
+  dat = f'{filename}{SEP}{filesize}{SEP}{Hash}{SEP}'.encode()
   # while len(dat.encode()) < 4096:
     # dat = dat+'0'
   s.send(dat)
@@ -62,7 +49,6 @@ if sys.argv[1] == 'transmit':
     for _ in progress:
       bytes_read = fi.read(BUFFER_SIZE)
       byte_size = len(bytes_read)
-      bytes_read = f.encrypt(bytes_read)
       if not bytes_read:
         break
       s.sendall(bytes_read)
@@ -71,11 +57,9 @@ if sys.argv[1] == 'transmit':
 
 
 
-elif sys.argv[1] == 'receive':
+elif args.r:
   global sent_hash
   default_key = '5LabvIZ3MFAxk0IgJnTjwyHbWXVZdoPQcEzLeLL9IHE='.encode()
-  f = Fernet(default_key)
-  print(f.encrypt("hello WORLD".encode()))
   SERVER_HOST = '0.0.0.0'
   SERVER_PORT = 9001
   BUFFER_SIZE = 4096
@@ -90,17 +74,16 @@ elif sys.argv[1] == 'receive':
   print(f"([*] Connection established!")
 
 
-  received = f.decrypt(client_socket.recv(BUFFER_SIZE)).decode()
-  print(f"Received {len(received.encode())} bytes")
+  received = client_socket.recv(BUFFER_SIZE).decode()
+  print(f"Received {len(received)} bytes")
   raw = received.split(SEP)
   print(raw)
   while '' in raw:
     raw.remove('')
-  print(len(raw))
-  filename = [0]
+  print(raw)
+  filename = raw[0]
   filesize = raw[1]
   sent_hash = raw[2]
-  f = Fernet(raw[3])
   filename = filename.replace('0','')
 
   filename = os.path.basename(filename)
@@ -118,7 +101,7 @@ elif sys.argv[1] == 'receive':
   print(saveas)
   with open(saveas, "wb") as f:
     for _ in progress:
-      bytes_read = f.decrypt(client_socket.recv(BUFFER_SIZE))
+      bytes_read =client_socket.recv(BUFFER_SIZE)
       if not bytes_read:
         break
       f.write(bytes_read)
@@ -126,7 +109,6 @@ elif sys.argv[1] == 'receive':
   client_socket.close()
   s.close()
   progress.close()
-  del f
   new_hash = hashlib.md5(open(filename,'rb').read()).hexdigest()
   if not new_hash == sent_hash:
     warn_md5()
