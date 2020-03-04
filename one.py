@@ -17,9 +17,8 @@ parser.add_argument('-f', type=str)
 args = parser.parse_args()
 
 def warn_md5():
-  print(f"Warning! MD5s do not match! {sent_hash}/{new_hash}")
-  print("This means that either the transfer went wrong, or the file ")
-  keep = input("Has been incerpeted by attackers, and is compromised. Keep file? (y/N)? ")
+  print(f"Warning! The received MD5 does not match the  MD5 of the transferred file. This is NOT good! {sent_hash}/{new_hash}")
+  keep = input("Keep file? [y/N]? ")
   if keep.lower() == 'n':
     os.remove(filename)
 
@@ -38,7 +37,8 @@ if args.t:
   s.connect((host, port))
   print(f"[*] Connected to {host}!")
   Hash = hashlib.md5(open(filename,'rb').read()).hexdigest()
-  dat = f'{filename}{SEP}{filesize}{SEP}{Hash}{SEP}'.encode()
+  hashhash = hashlib.md5(Hash).hexdigest()
+  dat = f'{filename}{SEP}{filesize}{SEP}{Hash}{SEP}{hashash}'.encode()
   # while len(dat.encode()) < 4096:
     # dat = dat+'0'
   s.send(dat)
@@ -59,7 +59,6 @@ if args.t:
 
 elif args.r:
   global sent_hash
-  default_key = '5LabvIZ3MFAxk0IgJnTjwyHbWXVZdoPQcEzLeLL9IHE='.encode()
   SERVER_HOST = '0.0.0.0'
   SERVER_PORT = 9001
   BUFFER_SIZE = 4096
@@ -84,10 +83,19 @@ elif args.r:
   filename = raw[0]
   filesize = raw[1]
   sent_hash = raw[2]
+  hashhash = raw[3]
   filename = filename.replace('0','')
 
   filename = os.path.basename(filename)
   saveas = filename
+  if (hashlib.md5(sent_hash).hexdigest not hashhash):
+    print("E: Hash has been modified, and is not accurate!")
+    c = input("Continue? [y/N]")
+    if c.lower == 'y':
+      print("Wait 5 seconds to continue", end='\r')
+      for i in range(1, 5):
+        sleep(1)
+        print("wait " + i, end='\r')
   filesize = int(filesize)
   if filesize >= 524288000:
     v = input(f'{filename} seems to be a large file. ({size(filesize)}) Download? [Y/n]')
