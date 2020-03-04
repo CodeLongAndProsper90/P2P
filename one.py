@@ -7,6 +7,7 @@ import hashlib
 from hurry.filesize import size
 import pyfiglet
 import base64
+from time import sleep
 
 
 parser = argparse.ArgumentParser(description='Send files without connecting to a server')
