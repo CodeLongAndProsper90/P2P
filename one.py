@@ -64,11 +64,14 @@ elif args.r:
   SERVER_PORT = 9001
   BUFFER_SIZE = 4096
   SEP = "<SEP>"
+  oldtimeout = socket.getdefaulttimeout()
+  socket.setdefaulttimeout(15)
   s = socket.socket()
 
   s.bind((SERVER_HOST, SERVER_PORT))
   s.listen(5)
-
+  socket.setdefaulttimeout(oldtimeout)
+  del oldtimeout
   print(f"[+] Listening as {SERVER_HOST}:{SERVER_PORT}")
   client_socket, address = s.accept()
   print(f"([*] Connection established!")
