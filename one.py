@@ -1,10 +1,10 @@
 import argparse
-
+import sys
 parser = argparse.ArgumentParser(description='Send files without connecting to a server')
 parser.add_argument('-t',  action='store_true')
 parser.add_argument('-r', action='store_true')
-parser.add_argument('--host', type=str)
-parser.add_argument('-f', type=str)
+parser.add_argument('--host', required='-t' in sys.argv, type=str)
+parser.add_argument('-f', required='-t' in sys.argv, type=str)
 args = parser.parse_args()
 import socket
 import tqdm
