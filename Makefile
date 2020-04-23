@@ -1,5 +1,6 @@
 .PHONY: release
 .PHONY: install
+<<<<<<< HEAD
 .PHONY: one.py
 all: one.py
 
